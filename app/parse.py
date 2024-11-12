@@ -101,7 +101,11 @@ def main(output_csv_path: str) -> None:
     quotes = get_all_quotes()
 
     quotes_data = [
-        {"text": quote.text, "author": quote.author, "tags": ", ".join(quote.tags)}
+        {
+            "text": quote.text,
+            "author": quote.author,
+            "tags": ", ".join(quote.tags)
+        }
         for quote in quotes
     ]
     write_to_csv(quotes_data, output_csv_path, ["text", "author", "tags"])
@@ -114,10 +118,19 @@ def main(output_csv_path: str) -> None:
                 authors[quote.author] = author_data
 
     authors_data = [
-        {"name": author.name, "biography": author.biography, "birth_date": author.birth_date, "birth_place": author.birth_place}
+        {
+            "name": author.name,
+            "biography": author.biography,
+            "birth_date": author.birth_date,
+            "birth_place": author.birth_place
+        }
         for author in authors.values()
     ]
-    write_to_csv(authors_data, "authors.csv", ["name", "biography", "birth_date", "birth_place"])
+    write_to_csv(
+        authors_data,
+        "authors.csv",
+        ["name", "biography", "birth_date", "birth_place"]
+    )
 
 
 if __name__ == "__main__":
