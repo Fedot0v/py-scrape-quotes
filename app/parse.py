@@ -39,7 +39,7 @@ def parse_single_page(page_content: str) -> list[Quote]:
     quotes = []
     for quote in soup.select(".quote"):
         author_url = (
-                BASE_URL + quote.select_one("a[href^='/author/']").get("href")
+            BASE_URL + quote.select_one("a[href^='/author/']").get("href")
         )
         quotes.append(Quote(
             text=quote.select_one(".text").text,
