@@ -78,23 +78,12 @@ def get_author_biography(author_url: str) -> Author:
     return Author(name, biography, birth_date, birth_place)
 
 
-def write_authors_to_csv(
-        authors: dict[str, Author],
-        output_csv_path: str
-) -> None:
+def write_to_csv(data: list, output_csv_path: str, fieldnames: list) -> None:
     with open(output_csv_path, "w", encoding="utf-8", newline="") as csv_file:
-        writer = csv.DictWriter(
-            csv_file,
-            fieldnames=["name", "biography", "birth_date", "birth_place"])
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for author in authors.values():
-            writer.writerow(
-                {"name": author.name,
-                 "biography": author.biography,
-                 "birth_date": author.birth_date,
-                 "birth_place": author.birth_place
-                 }
-            )
+        for item in data:
+            writer.writerow(item)
 
 
 def get_all_quotes() -> list[Quote]:
@@ -104,34 +93,18 @@ def get_all_quotes() -> list[Quote]:
         response = safe_request(f"{BASE_URL}page/{i}")
         if not response:
             continue
-
         quotes.extend(parse_single_page(response.content))
     return quotes
 
 
-def main(output_csv_path: str, output_authors_csv: str) -> None:
+def main(output_csv_path: str) -> None:
     quotes = get_all_quotes()
 
-    with open(
-            output_csv_path,
-            mode="w",
-            encoding="utf-8",
-            newline=""
-    ) as csv_file:
-        writer = csv.DictWriter(
-            csv_file,
-            fieldnames=["text", "author", "tags"]
-        )
-        writer.writeheader()
-
-        for quote in quotes:
-            writer.writerow(
-                {
-                    "text": quote.text,
-                    "author": quote.author,
-                    "tags": ", ".join(quote.tags)
-                }
-            )
+    quotes_data = [
+        {"text": quote.text, "author": quote.author, "tags": ", ".join(quote.tags)}
+        for quote in quotes
+    ]
+    write_to_csv(quotes_data, output_csv_path, ["text", "author", "tags"])
 
     authors = {}
     for quote in quotes:
@@ -140,8 +113,12 @@ def main(output_csv_path: str, output_authors_csv: str) -> None:
             if author_data:
                 authors[quote.author] = author_data
 
-    write_authors_to_csv(authors, output_authors_csv)
+    authors_data = [
+        {"name": author.name, "biography": author.biography, "birth_date": author.birth_date, "birth_place": author.birth_place}
+        for author in authors.values()
+    ]
+    write_to_csv(authors_data, "authors.csv", ["name", "biography", "birth_date", "birth_place"])
 
 
 if __name__ == "__main__":
-    main("quotes.csv", "authors.csv")
+    main("quotes.csv")
